@@ -115,20 +115,18 @@ fun RegisterScreen(
         )
     }
 
-    when (uiState) {
-        is UiState.Empty -> {}
-        is UiState.Loading -> {
-            LoadingScreen()
-        }
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is UiState.Empty -> {}
+            is UiState.Loading -> {}
 
-        is UiState.Error -> {
-            val errorState = uiState as UiState.Error
-            errorMessage = errorState.message
-            isDialogVisible = true
-        }
+            is UiState.Error -> {
+                val errorState = uiState as UiState.Error
+                errorMessage = errorState.message
+                isDialogVisible = true
+            }
 
-        is UiState.Success -> {
-            LaunchedEffect(Unit) {
+            is UiState.Success -> {
                 delay(200)
                 onNavBack()
             }

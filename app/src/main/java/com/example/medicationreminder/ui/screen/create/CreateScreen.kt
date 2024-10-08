@@ -98,21 +98,21 @@ fun CreateScreen(
         }
     }
 
-    when (uiState) {
-        is UiState.Empty -> {}
-        is UiState.Loading -> {
-            LoadingScreen()
-        }
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is UiState.Empty -> {}
+            is UiState.Loading -> {}
 
-        is UiState.Error -> {
-            val errorState = uiState as UiState.Error
-            errorMessage = errorState.message
-            isDialogVisible = true
-        }
+            is UiState.Error -> {
+                val errorState = uiState as UiState.Error
+                errorMessage = errorState.message
+                isDialogVisible = true
+            }
 
-        is UiState.Success -> {
-            val data = uiState as UiState.Success
-            onNavBack()
+            is UiState.Success -> {
+                val data = uiState as UiState.Success
+                onNavBack()
+            }
         }
     }
 }
@@ -297,13 +297,24 @@ fun CreateContent(
             if (title.isNotBlank() && desc.isNotBlank() && dosis.isNotBlank()
                 && date.isNotBlank() && time.isNotBlank()) {
                 onCreate(
-                    TaskEntity(
-                        title = title,
-                        description = desc,
-                        dosis = dosis,
-                        date = date,
-                        time = time
-                    )
+                    if (data != null) {
+                        TaskEntity(
+                            id = data.id,
+                            title = title,
+                            description = desc,
+                            dosis = dosis,
+                            date = date,
+                            time = time
+                        )
+                    } else {
+                        TaskEntity(
+                            title = title,
+                            description = desc,
+                            dosis = dosis,
+                            date = date,
+                            time = time
+                        )
+                    }
                 )
             } else {
                 showToast(context, "Form harus di isi semua")

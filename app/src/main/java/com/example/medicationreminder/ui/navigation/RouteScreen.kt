@@ -90,6 +90,10 @@ fun RouteScreen(
                 HomeScreen(
                     paddingValues = paddingValues,
                     onCreate = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = "data",
+                            value = null
+                        )
                         navController.navigate(Screen.CreateScreen.route)
                     },
                     onUpdate = {
