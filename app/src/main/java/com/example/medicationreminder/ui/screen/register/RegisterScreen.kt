@@ -64,6 +64,7 @@ fun RegisterScreen(
     viewModel: RegisterViewModel = koinViewModel(),
     onNavBack: () -> Unit,
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val uiState by viewModel.registerState.collectAsState()
     var isDialogVisible by remember { mutableStateOf(false) }
@@ -91,9 +92,17 @@ fun RegisterScreen(
         RegisterContent(
             modifier = modifier,
             isContentVisible = isContentVisible,
-            onRegister = { nik, name, email, pass ->
+            onRegister = { nim, name, email, pass ->
                 coroutineScope.launch {
-                    viewModel.loadRegister(UserEntity(1))
+                    viewModel.loadRegister(
+                        context,
+                        UserEntity(
+                            nim = nim,
+                            name = name,
+                            email = email,
+                            password = pass
+                        )
+                    )
                 }
             },
             onNavBack = {
@@ -119,7 +128,6 @@ fun RegisterScreen(
         }
 
         is UiState.Success -> {
-            val data = (uiState as UiState.Success).data
             LaunchedEffect(Unit) {
                 delay(200)
                 onNavBack()
@@ -136,7 +144,7 @@ fun RegisterContent(
     onNavBack: () -> Unit
 ) {
     val context = LocalContext.current
-    var nik by remember { mutableStateOf("") }
+    var nim by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -200,11 +208,11 @@ fun RegisterContent(
             exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
         ) {
             FormBasicComponent(
-                title = "NIK",
-                hintText = "Masukan NIK",
-                value = nik,
+                title = "NIM",
+                hintText = "Masukan NIM",
+                value = nim,
                 onValueChange = {
-                    nik = it
+                    nim = it
                     isNikError = false
                 },
                 onError = isNikError,
@@ -301,7 +309,7 @@ fun RegisterContent(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
                 onClick = {
-                    if (nik.isBlank()) {
+                    if (nim.isBlank()) {
                         isNikError = true
                     }
                     if (name.isBlank()) {
@@ -319,7 +327,7 @@ fun RegisterContent(
 
                     if (email.isNotBlank() && password.isNotBlank() && password2.isNotBlank()) {
                         if (password == password2) {
-                            onRegister(nik, name, email, password)
+                            onRegister(nim, name, email, password)
                         } else {
                             showToast(context, "Password tidak sama!")
                         }

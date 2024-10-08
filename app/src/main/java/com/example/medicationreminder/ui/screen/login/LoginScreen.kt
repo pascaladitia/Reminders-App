@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,12 +48,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.medicationreminder.R
+import com.example.medicationreminder.data.prefs.PreferencesLogin
 import com.example.medicationreminder.domain.base.UiState
 import com.example.medicationreminder.ui.component.FormEmailComponent
 import com.example.medicationreminder.ui.component.FormPasswordComponent
 import com.example.medicationreminder.ui.component.LoadingScreen
 import com.example.medicationreminder.ui.component.ShowErrorDialog
 import com.example.medicationreminder.ui.theme.MedicationReminderTheme
+import com.example.medicationreminder.utils.showToast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -101,7 +104,9 @@ fun LoginScreen(
                 passwordValue = password
                 isSaveLogin = isLogin
 
-
+                coroutineScope.launch {
+                    viewModel.loadLogin(context, email, password)
+                }
             },
             onRegister = {
                 isContentVisible = false
@@ -126,7 +131,7 @@ fun LoginScreen(
         }
 
         is UiState.Success -> {
-            val data = (uiState as UiState.Success).data
+            PreferencesLogin.saveIsLogin(context, isSaveLogin)
             onLogin()
         }
     }
@@ -151,7 +156,7 @@ fun LoginContent(
             modifier = modifier
                 .padding(horizontal = 24.dp)
                 .fillMaxSize()
-                .align(Alignment.Center),
+                .align(Alignment.TopCenter),
             verticalArrangement = Arrangement.Center
         ) {
 
@@ -164,7 +169,8 @@ fun LoginContent(
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = null,
                     modifier = Modifier
-                        .height(80.dp)
+                        .fillMaxWidth()
+                        .height(120.dp)
                         .padding(bottom = 18.dp)
                 )
             }
