@@ -93,6 +93,7 @@ fun LoginScreen(
                 Manifest.permission.FOREGROUND_SERVICE,
                 Manifest.permission.FOREGROUND_SERVICE_LOCATION,
                 Manifest.permission.POST_NOTIFICATIONS,
+                Manifest.permission.CAMERA
             )
         )
 
