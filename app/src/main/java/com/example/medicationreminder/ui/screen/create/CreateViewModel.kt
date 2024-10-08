@@ -1,12 +1,19 @@
 package com.example.medicationreminder.ui.screen.create
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.medicationreminder.data.local.model.UserEntity
-import com.example.medicationreminder.data.prefs.PreferencesLogin
+import com.example.medicationreminder.data.local.model.TaskEntity
 import com.example.medicationreminder.domain.base.UiState
 import com.example.medicationreminder.domain.usecase.LocalUC
+import com.example.medicationreminder.utils.NotifUtils.Companion.CHANNEL_ID
+import com.example.medicationreminder.utils.NotifUtils.Companion.CHANNEL_NAME
+import com.example.medicationreminder.utils.createChannel
+import com.example.medicationreminder.utils.getUniqueId
+import com.example.medicationreminder.utils.showToast
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,21 +22,55 @@ class CreateViewModel(
     private val localUC: LocalUC
 ) : ViewModel() {
 
-    private val _profileState = MutableStateFlow<UiState<UserEntity?>>(UiState.Empty)
-    val profileState: StateFlow<UiState<UserEntity?>> = _profileState
+    private val _createState = MutableStateFlow<UiState<String?>>(UiState.Empty)
+    val createState: StateFlow<UiState<String?>> = _createState
 
-    suspend fun loadProfile(context: Context) {
-        _profileState.value = UiState.Loading
+    suspend fun loadCreate(context: Context, task: TaskEntity?) {
+        _createState.value = UiState.Loading
 
         viewModelScope.launch {
-            localUC.getUser().collect { result ->
-                try {
-                    val data = result.find { it?.email == PreferencesLogin.getEmail(context)}
-                    _profileState.value = UiState.Success(data)
-                } catch (e: Exception) {
-                    _profileState.value = UiState.Error("Gagal profile user: ${e.message}")
+            if (task != null) {
+                localUC.addTask(task).collect { result ->
+                    try {
+                        createNotification(context, task)
+
+                        showToast(context, "Berhasil")
+                        _createState.value = UiState.Success("")
+                    } catch (e: Exception) {
+                        _createState.value = UiState.Error("Gagal create user: ${e.message}")
+                    }
                 }
             }
+        }
+    }
+
+    private fun createNotification(context: Context, result: TaskEntity?) {
+        val task = TaskEntity(
+            title = result?.title,
+            description = result?.description,
+            dosis = result?.dosis,
+            date = result?.date,
+            time = result?.time,
+            false,
+            "Hight",
+            getUniqueId()
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {  // API 26
+            val channelId = CHANNEL_ID
+            val channelName = CHANNEL_NAME
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel =
+                NotificationChannel(
+                    channelId.toString(),
+                    channelName,
+                    importance
+                )
+            val notificationManager =
+                context.getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+
+            createChannel(channelId, context, task)
         }
     }
 }

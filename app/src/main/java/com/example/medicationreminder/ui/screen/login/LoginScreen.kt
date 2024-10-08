@@ -1,5 +1,9 @@
 package com.example.medicationreminder.ui.screen.login
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -56,10 +60,13 @@ import com.example.medicationreminder.ui.component.LoadingScreen
 import com.example.medicationreminder.ui.component.ShowErrorDialog
 import com.example.medicationreminder.ui.theme.MedicationReminderTheme
 import com.example.medicationreminder.utils.showToast
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
@@ -78,7 +85,23 @@ fun LoginScreen(
     var errorMessage by remember { mutableStateOf("") }
     var isContentVisible by remember { mutableStateOf(false) }
 
+    val multiplePermissionState = rememberMultiplePermissionsState(
+            permissions = listOf(
+                Manifest.permission.SCHEDULE_EXACT_ALARM,
+                Manifest.permission.SET_ALARM,
+                Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                Manifest.permission.FOREGROUND_SERVICE,
+                Manifest.permission.FOREGROUND_SERVICE_LOCATION,
+                Manifest.permission.POST_NOTIFICATIONS,
+            )
+        )
+
+    BackHandler {
+        (context as? ComponentActivity)?.finish()
+    }
+
     LaunchedEffect(Unit) {
+        multiplePermissionState.launchMultiplePermissionRequest()
         delay(200)
         isContentVisible = true
     }

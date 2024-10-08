@@ -12,6 +12,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
 import androidx.core.app.NotificationCompat
+import com.example.medicationreminder.MainActivity
 import com.example.medicationreminder.R
 import com.example.medicationreminder.data.local.model.TaskEntity
 import com.example.medicationreminder.data.service.AlarmReceiver
@@ -35,7 +36,7 @@ fun createChannel(channelId: String, context: Context, task: TaskEntity) {
             .map { it.toInt() }
         val calendar = Calendar.getInstance()
 
-        val notificationIntent = Intent(context, TaskEntity::class.java)
+        val notificationIntent = Intent(context, MainActivity::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pIntent= if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // API 31
             PendingIntent.getBroadcast(
@@ -127,14 +128,6 @@ fun cancelAlarm(context: Context, id: Long) {
         )
     }
     alarmManager.cancel(pendingIntent)
-}
-
-fun String.capitalized(): String {
-    return this.replaceFirstChar {
-        if (it.isLowerCase())
-            it.titlecase(Locale.getDefault())
-        else it.toString()
-    }
 }
 
 fun getUniqueId() = ((System.currentTimeMillis() % 1000000).toLong())

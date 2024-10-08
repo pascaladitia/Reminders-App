@@ -17,6 +17,9 @@ data class TaskEntity(
     @ColumnInfo(name = "description")
     val description:String? = null,
 
+    @ColumnInfo(name = "dosis")
+    val dosis: String? = null,
+
     @ColumnInfo(name = "date")
     val date: String? = null,
 

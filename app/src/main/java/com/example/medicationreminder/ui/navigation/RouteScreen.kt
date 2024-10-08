@@ -91,12 +91,20 @@ fun RouteScreen(
                     paddingValues = paddingValues,
                     onCreate = {
                         navController.navigate(Screen.CreateScreen.route)
+                    },
+                    onUpdate = {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = "data",
+                            value = it
+                        )
+                        navController.navigate(Screen.CreateScreen.route)
                     }
                 )
             }
             composable(route = Screen.CreateScreen.route) {
-                CreateScreen (
+                CreateScreen(
                     paddingValues = paddingValues,
+                    taskData = navController.previousBackStackEntry?.savedStateHandle?.get("data"),
                     onNavBack = {
                         navController.popBackStack()
                     }
@@ -106,7 +114,12 @@ fun RouteScreen(
                 ProfileScreen(
                     paddingValues = paddingValues,
                     onLogout = {
-                        navController.navigate(Screen.LoginScreen.route)
+                        navController.navigate(Screen.LoginScreen.route) {
+                            popUpTo(Screen.HomeScreen.route) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
                     }
                 )
             }

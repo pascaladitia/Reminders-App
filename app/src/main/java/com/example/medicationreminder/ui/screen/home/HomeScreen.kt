@@ -1,5 +1,7 @@
 package com.example.medicationreminder.ui.screen.home
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -48,10 +50,12 @@ import com.example.medicationreminder.ui.component.LoadingScreen
 import com.example.medicationreminder.ui.component.ShowErrorDialog
 import com.example.medicationreminder.ui.theme.MedicationReminderTheme
 import compose.icons.FeatherIcons
+import compose.icons.feathericons.Calendar
 import compose.icons.feathericons.Plus
 import compose.icons.feathericons.Tag
-import compose.icons.feathericons.Trash
+import compose.icons.feathericons.Trash2
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -59,7 +63,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     viewModel: HomeViewModel = koinViewModel(),
-    onCreate: () -> Unit
+    onCreate: () -> Unit,
+    onUpdate: (TaskEntity?) -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -70,7 +75,12 @@ fun HomeScreen(
     var errorMessage by remember { mutableStateOf("") }
     var isContentVisible by remember { mutableStateOf(false) }
 
+    BackHandler {
+        (context as? ComponentActivity)?.finish()
+    }
+
     LaunchedEffect(Unit) {
+        viewModel.loadTask()
         delay(200)
         isContentVisible = true
     }
@@ -89,9 +99,17 @@ fun HomeScreen(
         }
 
         HomeContent(
-            data = taskData ?: emptyList()
+            data = taskData ?: emptyList(),
+            onCreate = {
+                onCreate()
+            },
+            onUpdate = {
+                onUpdate(it)
+            }
         ) {
-            onCreate()
+            coroutineScope.launch {
+                viewModel.deleteTask(context, it)
+            }
         }
     }
 
@@ -118,7 +136,9 @@ fun HomeScreen(
 fun HomeContent(
     modifier: Modifier = Modifier,
     data: List<TaskEntity?>,
-    onCreate: () -> Unit
+    onCreate: () -> Unit,
+    onUpdate: (TaskEntity?) -> Unit,
+    onDelete: (TaskEntity?) -> Unit
 ) {
     Box {
         Column(
@@ -161,8 +181,13 @@ fun HomeContent(
                     .fillMaxWidth()
             ) {
                 items(data) {
-                    HomeItem(data = it) {
-
+                    HomeItem(
+                        data = it,
+                        onClick = {
+                            onUpdate(it)
+                        }
+                    ) {
+                        onDelete(it)
                     }
                 }
             }
@@ -186,6 +211,7 @@ fun HomeContent(
 fun HomeItem(
     modifier: Modifier = Modifier,
     data: TaskEntity?,
+    onClick: (TaskEntity?) -> Unit,
     onDelete: (TaskEntity?) -> Unit
 ) {
     Column(
@@ -193,6 +219,7 @@ fun HomeItem(
             .fillMaxWidth()
             .padding(bottom = 16.dp)
             .clip(RoundedCornerShape(12.dp))
+            .clickable { onClick(data) }
             .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
             .padding(16.dp)
     ) {
@@ -203,14 +230,16 @@ fun HomeItem(
                 modifier = Modifier.size(24.dp),
                 imageVector = FeatherIcons.Tag,
                 contentDescription = "",
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.primary
             )
 
             Spacer(Modifier.width(16.dp))
 
             Text(
                 text = data?.title ?: "No Title",
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall.copy(
+                    color = MaterialTheme.colorScheme.primary
+                )
             )
         }
 
@@ -228,7 +257,7 @@ fun HomeItem(
         ) {
             Icon(
                 modifier = Modifier.size(16.dp),
-                imageVector = FeatherIcons.Tag,
+                imageVector = FeatherIcons.Calendar,
                 contentDescription = "",
                 tint = Color.White
             )
@@ -252,7 +281,7 @@ fun HomeItem(
                 modifier = Modifier
                     .background(Color.Gray, RoundedCornerShape(6.dp))
                     .padding(6.dp),
-                text = "Active",
+                text = "Dosis : ${data?.dosis ?: 0}",
                 style = MaterialTheme.typography.bodySmall
             )
 
@@ -260,7 +289,7 @@ fun HomeItem(
                 modifier = Modifier
                     .clickable { onDelete(data) }
                     .size(24.dp),
-                imageVector = FeatherIcons.Trash,
+                imageVector = FeatherIcons.Trash2,
                 contentDescription = "",
                 tint = Color.Red
             )
@@ -277,7 +306,9 @@ private fun HomePreview() {
                 TaskEntity(),
                 TaskEntity()
             ),
-            onCreate = {}
+            onCreate = {},
+            onUpdate = {},
+            onDelete = {}
         )
     }
 }
