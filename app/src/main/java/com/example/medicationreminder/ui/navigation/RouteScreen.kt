@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.medicationreminder.ui.screen.create.CreateScreen
 import com.example.medicationreminder.ui.screen.home.HomeScreen
 import com.example.medicationreminder.ui.screen.login.LoginScreen
 import com.example.medicationreminder.ui.screen.profile.ProfileScreen
@@ -86,10 +87,28 @@ fun RouteScreen(
                 )
             }
             composable(route = Screen.HomeScreen.route) {
-                HomeScreen()
+                HomeScreen(
+                    paddingValues = paddingValues,
+                    onCreate = {
+                        navController.navigate(Screen.CreateScreen.route)
+                    }
+                )
+            }
+            composable(route = Screen.CreateScreen.route) {
+                CreateScreen (
+                    paddingValues = paddingValues,
+                    onNavBack = {
+                        navController.popBackStack()
+                    }
+                )
             }
             composable(route = Screen.ProfileScreen.route) {
-                ProfileScreen()
+                ProfileScreen(
+                    paddingValues = paddingValues,
+                    onLogout = {
+                        navController.navigate(Screen.LoginScreen.route)
+                    }
+                )
             }
         }
     }

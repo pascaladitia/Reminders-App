@@ -1,4 +1,4 @@
-package com.example.medicationreminder.ui.screen.profile
+package com.example.medicationreminder.ui.screen.create
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -24,11 +24,11 @@ import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun ProfileScreen(
+fun CreateScreen(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
-    viewModel: ProfileViewModel = koinViewModel(),
-    onLogout: () -> Unit
+    viewModel: CreateViewModel = koinViewModel(),
+    onNavBack: () -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -57,7 +57,7 @@ fun ProfileScreen(
             isDialogVisible = false
         }
 
-        ProfileContent(
+        CreateContent(
             data = taskData
         ) { }
     }
@@ -82,7 +82,7 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfileContent(
+fun CreateContent(
     modifier: Modifier = Modifier,
     data: UserEntity?,
     onCreate: () -> Unit
@@ -92,9 +92,9 @@ fun ProfileContent(
 
 @Preview
 @Composable
-private fun ProfilePreview() {
+private fun CreatePreview() {
     MedicationReminderTheme {
-        ProfileContent(
+        CreateContent(
             data = UserEntity(),
             onCreate = {}
         )

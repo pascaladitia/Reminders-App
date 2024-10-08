@@ -1,10 +1,11 @@
 package com.example.medicationreminder.ui.navigation
 
 sealed class Screen(val route: String) {
-    object SplashScreen: Screen("splash")
-    object LoginScreen: Screen("login")
-    object RegisterScreen: Screen("register")
+    data object SplashScreen: Screen("splash")
+    data object LoginScreen: Screen("login")
+    data object RegisterScreen: Screen("register")
 
-    object HomeScreen: Screen("home")
-    object ProfileScreen: Screen("profile")
+    data object HomeScreen: Screen("home")
+    data object CreateScreen: Screen("create")
+    data object ProfileScreen: Screen("profile")
 }

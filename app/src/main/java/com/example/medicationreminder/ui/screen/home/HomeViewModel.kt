@@ -13,8 +13,8 @@ class HomeViewModel(
     private val localUC: LocalUC
 ) : ViewModel() {
 
-    private val _taskState = MutableStateFlow<UiState<List<TaskEntity?>>>(UiState.Empty)
-    val taskState: StateFlow<UiState<List<TaskEntity?>>> = _taskState
+    private val _taskState = MutableStateFlow<UiState<List<TaskEntity?>?>>(UiState.Empty)
+    val taskState: StateFlow<UiState<List<TaskEntity?>?>> = _taskState
 
     suspend fun loadTask() {
         _taskState.value = UiState.Loading
