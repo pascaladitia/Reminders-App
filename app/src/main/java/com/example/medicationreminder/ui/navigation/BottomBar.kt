@@ -8,6 +8,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.jari.hrmsmobile.presentation.navigation.NavigationItem
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Home
+import compose.icons.feathericons.User
 
 @Composable
 fun BottomBar(
@@ -34,7 +35,7 @@ fun BottomBar(
         modifier = modifier
             .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             .shadow(8.dp, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-            .background(Color.White)
+            .background(Color.DarkGray)
     ) {
         NavigationBar(
             containerColor = Color.Transparent,
@@ -47,6 +48,11 @@ fun BottomBar(
                     icon = FeatherIcons.Home,
                     screen = Screen.HomeScreen
                 ),
+                NavigationItem(
+                    title = "Profile",
+                    icon = FeatherIcons.User,
+                    screen = Screen.ProfileScreen
+                ),
             )
             navigationItems.map { item ->
                 NavigationBarItem(
@@ -57,6 +63,12 @@ fun BottomBar(
                             modifier = Modifier
                                 .size(20.dp),
                             tint = if (currentRoute == item.screen.route) MaterialTheme.colorScheme.primary else Color.Gray
+                        )
+                    },
+                    label ={
+                        Text(
+                            text = item.title,
+                            style = MaterialTheme.typography.bodySmall
                         )
                     },
                     alwaysShowLabel = true,

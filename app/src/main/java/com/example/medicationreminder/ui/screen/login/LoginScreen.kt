@@ -131,7 +131,7 @@ fun LoginScreen(
         }
 
         is UiState.Success -> {
-            PreferencesLogin.saveIsLogin(context, isSaveLogin)
+            PreferencesLogin.saveIsLogin(context, emailValue, isSaveLogin)
             onLogin()
         }
     }

@@ -13,6 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.medicationreminder.ui.screen.home.HomeScreen
 import com.example.medicationreminder.ui.screen.login.LoginScreen
+import com.example.medicationreminder.ui.screen.profile.ProfileScreen
 import com.example.medicationreminder.ui.screen.register.RegisterScreen
 import com.example.medicationreminder.ui.screen.splash.SplashScreen
 
@@ -25,7 +26,7 @@ fun RouteScreen(
 
     Scaffold(
         bottomBar = {
-            if (currentRoute in listOf(Screen.HomeScreen.route)) {
+            if (currentRoute in listOf(Screen.HomeScreen.route, Screen.ProfileScreen.route)) {
                 BottomBar(navController)
             }
         }
@@ -86,6 +87,9 @@ fun RouteScreen(
             }
             composable(route = Screen.HomeScreen.route) {
                 HomeScreen()
+            }
+            composable(route = Screen.ProfileScreen.route) {
+                ProfileScreen()
             }
         }
     }

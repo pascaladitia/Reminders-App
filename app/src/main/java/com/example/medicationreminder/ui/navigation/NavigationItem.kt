@@ -1,7 +1,6 @@
-package com.jari.hrmsmobile.presentation.navigation
+package com.example.medicationreminder.ui.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.example.medicationreminder.ui.navigation.Screen
 
 data class NavigationItem(
     val title: String,
