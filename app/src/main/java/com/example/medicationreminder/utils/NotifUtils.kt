@@ -11,6 +11,7 @@ import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.medicationreminder.MainActivity
 import com.example.medicationreminder.R
@@ -32,44 +33,26 @@ fun createChannel(channelId: String, context: Context, task: TaskEntity) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // API 26
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
         val (hours, min) = task.time!!.split(":").map { it.toInt() }
-        val (year, month, day) = task.date!!.split("-")
-            .map { it.toInt() }
+        val (year, month, day) = task.date!!.split("-").map { it.toInt() }
         val calendar = Calendar.getInstance()
 
         val notificationIntent = Intent(context, MainActivity::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pIntent= if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // API 31
-            PendingIntent.getBroadcast(
-                context,
-                0,
-                notificationIntent,
-                PendingIntent.FLAG_MUTABLE
-            )
+        val pIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // API 31
+            PendingIntent.getBroadcast(context, 0, notificationIntent, PendingIntent.FLAG_MUTABLE)
         } else {
-            PendingIntent.getBroadcast(
-                context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
-            )
+            PendingIntent.getBroadcast(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
-        val contentIntent= if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // start activity from notification
-            PendingIntent.getActivity(
-                context,
-                0,
-                notificationIntent,
-                PendingIntent.FLAG_MUTABLE
-            )
+        val contentIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // start activity from notification
+            PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_MUTABLE)
         } else {
-            PendingIntent.getActivity(
-                context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
-            )
+            PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
-        val nm: NotificationManager = context
-            .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        calendar.set(year, month - 1, day, hours, min,0)
+        val nm: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        calendar.set(year, month - 1, day, hours, min, 0)
         if (calendar.timeInMillis > System.currentTimeMillis()) { // set alarm if the time is in future
-
-
             val sb: Spannable = SpannableString(task.title)
             sb.setSpan(StyleSpan(Typeface.BOLD), 0, sb.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
@@ -77,37 +60,29 @@ fun createChannel(channelId: String, context: Context, task: TaskEntity) {
                 .setSmallIcon(R.drawable.logo)
                 .setChannelId(channelId)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_HIGH) // Set high priority to show on lockscreen
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC) // Ensure visibility on lockscreen
                 .setWhen(calendar.timeInMillis)
                 .setContentIntent(contentIntent)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setContentTitle(task.title)
+                .setContentText(task.description)
                 .setStyle(NotificationCompat
                     .InboxStyle()
                     .addLine(task.description)
-                    //.addLine("another line")
                     .setBigContentTitle(sb)
                     .setSummaryText("Reminder"))
                 .build()
+
             val intent = Intent(context, AlarmReceiver::class.java)
             intent.putExtra(NotifUtils.NOTIFICATION, notificationBuilder)
 
-            val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // API 31
-                PendingIntent.getBroadcast(
-                    context,
-                    task.alarmId.toInt(),
-                    intent,
-                    PendingIntent.FLAG_MUTABLE
-                )
+            val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                PendingIntent.getBroadcast(context, task.alarmId.toInt(), intent, PendingIntent.FLAG_MUTABLE)
             } else {
-                PendingIntent.getBroadcast(
-                    context, task.alarmId.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT
-                )
+                PendingIntent.getBroadcast(context, task.alarmId.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
             }
-            alarmManager?.setExact(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                pendingIntent
-            )
+
+            alarmManager?.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
         }
     }
 }
@@ -115,19 +90,28 @@ fun createChannel(channelId: String, context: Context, task: TaskEntity) {
 fun cancelAlarm(context: Context, id: Long) {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     val intent = Intent(context, AlarmReceiver::class.java)
+
     val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // API 31
         PendingIntent.getBroadcast(
             context,
             id.toInt(),
             intent,
-            PendingIntent.FLAG_MUTABLE
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_NO_CREATE
         )
     } else {
         PendingIntent.getBroadcast(
-            context, id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT
+            context,
+            id.toInt(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_NO_CREATE
         )
     }
-    alarmManager.cancel(pendingIntent)
+
+    if (pendingIntent != null) {
+        alarmManager.cancel(pendingIntent)
+    } else {
+        Log.w("cancelAlarm", "PendingIntent tidak ditemukan, alarm tidak dibatalkan")
+    }
 }
 
 fun getUniqueId() = ((System.currentTimeMillis() % 1000000).toLong())

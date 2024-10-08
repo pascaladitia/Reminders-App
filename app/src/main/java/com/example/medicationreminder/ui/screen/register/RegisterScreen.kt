@@ -49,7 +49,6 @@ import com.example.medicationreminder.domain.base.UiState
 import com.example.medicationreminder.ui.component.FormBasicComponent
 import com.example.medicationreminder.ui.component.FormEmailComponent
 import com.example.medicationreminder.ui.component.FormPasswordComponent
-import com.example.medicationreminder.ui.component.LoadingScreen
 import com.example.medicationreminder.ui.component.ShowErrorDialog
 import com.example.medicationreminder.ui.theme.MedicationReminderTheme
 import com.example.medicationreminder.utils.showToast
@@ -97,7 +96,7 @@ fun RegisterScreen(
                     viewModel.loadRegister(
                         context,
                         UserEntity(
-                            nim = nim,
+                            hpht = nim,
                             name = name,
                             email = email,
                             password = pass
@@ -142,13 +141,17 @@ fun RegisterContent(
     onNavBack: () -> Unit
 ) {
     val context = LocalContext.current
-    var nim by remember { mutableStateOf("") }
+    var hpht by remember { mutableStateOf("") }
+    var tp by remember { mutableStateOf("") }
+    var gpa by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var password2 by remember { mutableStateOf("") }
 
-    var isNikError by remember { mutableStateOf(false) }
+    var isHpHtError by remember { mutableStateOf(false) }
+    var isTpError by remember { mutableStateOf(false) }
+    var isGpaError by remember { mutableStateOf(false) }
     var isNameError by remember { mutableStateOf(false) }
     var isEmailError by remember { mutableStateOf(false) }
     var isPasswordError by remember { mutableStateOf(false) }
@@ -202,23 +205,6 @@ fun RegisterContent(
 
         AnimatedVisibility(
             visible = isContentVisible,
-            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally(),
-            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
-        ) {
-            FormBasicComponent(
-                title = "NIM",
-                hintText = "Masukan NIM",
-                value = nim,
-                onValueChange = {
-                    nim = it
-                    isNikError = false
-                },
-                onError = isNikError,
-            )
-        }
-
-        AnimatedVisibility(
-            visible = isContentVisible,
             enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally { fullHeight -> fullHeight },
             exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally { fullHeight -> fullHeight }
         ) {
@@ -231,6 +217,57 @@ fun RegisterContent(
                     isNameError = false
                 },
                 onError = isNameError,
+            )
+        }
+
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally(),
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
+        ) {
+            FormBasicComponent(
+                title = "HpHt",
+                hintText = "Masukan HpHt",
+                value = hpht,
+                onValueChange = {
+                    hpht = it
+                    isHpHtError = false
+                },
+                onError = isHpHtError,
+            )
+        }
+
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally(),
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
+        ) {
+            FormBasicComponent(
+                title = "Tp",
+                hintText = "Masukan Tp",
+                value = tp,
+                onValueChange = {
+                    tp = it
+                    isTpError = false
+                },
+                onError = isHpHtError,
+            )
+        }
+
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally(),
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
+        ) {
+            FormBasicComponent(
+                title = "GPA",
+                hintText = "Masukan GPA",
+                value = gpa,
+                onValueChange = {
+                    gpa = it
+                    isGpaError = false
+                },
+                onError = isHpHtError,
             )
         }
 
@@ -307,8 +344,14 @@ fun RegisterContent(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
                 onClick = {
-                    if (nim.isBlank()) {
-                        isNikError = true
+                    if (hpht.isBlank()) {
+                        isHpHtError = true
+                    }
+                    if (tp.isBlank()) {
+                        isHpHtError = true
+                    }
+                    if (gpa.isBlank()) {
+                        isHpHtError = true
                     }
                     if (name.isBlank()) {
                         isNameError = true
@@ -323,9 +366,11 @@ fun RegisterContent(
                         isPassword2Error = true
                     }
 
-                    if (email.isNotBlank() && password.isNotBlank() && password2.isNotBlank()) {
+                    if (hpht.isNotBlank() && tp.isNotBlank() && gpa.isNotBlank() && name.isNotBlank() &&
+                        email.isNotBlank() && password.isNotBlank() && password2.isNotBlank()
+                    ) {
                         if (password == password2) {
-                            onRegister(nim, name, email, password)
+                            onRegister(hpht, name, email, password)
                         } else {
                             showToast(context, "Password tidak sama!")
                         }

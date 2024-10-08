@@ -199,7 +199,7 @@ fun ProfileContent(
                     Spacer(modifier = Modifier.height(6.dp))
 
                     Text(
-                        text = data?.nim ?: "No Nim",
+                        text = data?.email ?: "No Email",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )

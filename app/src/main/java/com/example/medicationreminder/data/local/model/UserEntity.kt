@@ -13,8 +13,14 @@ data class UserEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null,
 
-    @field:SerializedName("nim")
-    var nim: String? = null,
+    @field:SerializedName("HpHt")
+    var hpht: String? = null,
+
+    @field:SerializedName("Tp")
+    var tp: String? = null,
+
+    @field:SerializedName("gpa")
+    var gpa: String? = null,
 
     @field:SerializedName("name")
     var name: String? = null,
