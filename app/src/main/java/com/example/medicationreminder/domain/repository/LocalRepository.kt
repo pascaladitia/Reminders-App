@@ -1,6 +1,7 @@
 package com.example.medicationreminder.domain.repository
 
 import com.example.medicationreminder.data.local.LocalDataSource
+import com.example.medicationreminder.data.local.model.TaskEntity
 import com.example.medicationreminder.data.local.model.UserEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -20,5 +21,22 @@ internal class LocalRepository(
 
     override suspend fun deleteUser(): Flow<Unit> {
         return flowOf(localDataSource.deleteUser())
+    }
+
+    /** Task */
+    override suspend fun getTask(): Flow<List<TaskEntity?>> {
+        return flowOf(localDataSource.getTask())
+    }
+
+    override suspend fun addTask(item: TaskEntity): Flow<Unit> {
+        return flowOf(localDataSource.addTask(item))
+    }
+
+    override suspend fun deleteTask(item: TaskEntity): Flow<Unit> {
+        return flowOf(localDataSource.deleteTask(item))
+    }
+
+    override suspend fun clearTask(): Flow<Unit> {
+        return flowOf(localDataSource.clearTask())
     }
 }
